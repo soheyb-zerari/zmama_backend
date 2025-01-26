@@ -17,8 +17,10 @@ export class AuthRepository {
   }
 
   async storeRefreshToken(token: string, userId: string, expiresAt: Date) {
-    await this.databaseService.refreshToken.create({
-      data: { token: token, userId: userId, expiresAt: expiresAt },
+    await this.databaseService.refreshToken.upsert({
+      where: { userId: userId },
+      create: { token: token, userId: userId, expiresAt: expiresAt },
+      update: { token: token, userId: userId, expiresAt: expiresAt },
     });
   }
 
@@ -32,11 +34,7 @@ export class AuthRepository {
         throw new Error(`No valid refresh token found.`);
       }
 
-      return await this.databaseService.refreshToken.delete({
-        where: {
-          id: refreshToken.id,
-        },
-      });
+      return refreshToken;
     } catch (error) {
       console.log(error.message);
     }
