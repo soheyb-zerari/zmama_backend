@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -6,6 +7,7 @@ import { DatabaseModule } from './database/database.module';
 import { ProductModule } from './product/product.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -21,6 +23,7 @@ import { JwtModule } from '@nestjs/jwt';
     DatabaseModule,
     ProductModule,
     AuthModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService],
