@@ -4,9 +4,14 @@ import { ProductService } from './product.service';
 import { ProductController } from './product.controller';
 import { DatabaseModule } from 'src/database/database.module';
 import { ProductRepository } from './product.repository';
+import { MongooseModule } from '@nestjs/mongoose';
+import { Product, ProductSchema } from 'src/schemas/product.schema';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [
+    DatabaseModule,
+    MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
+  ],
   controllers: [ProductController],
   providers: [ProductService, ProductRepository],
 })

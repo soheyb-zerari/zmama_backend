@@ -1,10 +1,15 @@
 /* eslint-disable prettier/prettier */
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { Injectable } from '@nestjs/common';
+import { MongooseModuleOptions } from '@nestjs/mongoose';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class DatabaseService extends PrismaClient implements OnModuleInit {
-  async onModuleInit() {
-    await this.$connect();
+export class DatabaseService {
+  constructor(private readonly configService: ConfigService) {}
+
+  getMongooseOptions(): MongooseModuleOptions {
+    return {
+      uri: this.configService.get<string>('DATABASE_URL'), // Ensure your .env has this variable
+    };
   }
 }

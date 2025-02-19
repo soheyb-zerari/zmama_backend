@@ -1,39 +1,52 @@
 /* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { SignupDto } from './dto/signup.dto';
-import { DatabaseService } from 'src/database/database.service';
+import { InjectModel } from '@nestjs/mongoose';
+import { User, UserDocument } from 'src/schemas/user.schema';
+import {
+  RefreshToken,
+  RefreshTokenDocument,
+} from 'src/schemas/refreshToken.schema';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class AuthRepository {
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    @InjectModel(RefreshToken.name)
+    private readonly refreshTokenModel: Model<RefreshTokenDocument>,
+  ) {}
   async createUser(signupDto: SignupDto) {
-    return await this.databaseService.user.create({ data: signupDto });
+    const createdUser = await new this.userModel(signupDto);
+    return await createdUser.save();
   }
 
   async findByEmail(email: string) {
-    return await this.databaseService.user.findUnique({
-      where: { email: email },
-    });
+    return await this.userModel.findOne({ email }).exec();
   }
 
   async storeRefreshToken(token: string, userId: string, expiresAt: Date) {
-    await this.databaseService.refreshToken.upsert({
-      where: { userId: userId },
-      create: { token: token, userId: userId, expiresAt: expiresAt },
-      update: { token: token, userId: userId, expiresAt: expiresAt },
-    });
+    return await this.refreshTokenModel
+      .findOneAndUpdate(
+        { userId },
+        { token, userId, expiresAt },
+        { upsert: true, new: true },
+      )
+      .exec();
   }
 
   async findAndDeleteRefreshToken(token: string, expiresAt: Date) {
     try {
-      const refreshToken = await this.databaseService.refreshToken.findUnique({
-        where: { token: token, expiresAt: { gt: expiresAt } },
-      });
+      const refreshToken = await this.refreshTokenModel
+        .findOneAndDelete({
+          token,
+          expiresAt: { $gt: expiresAt },
+        })
+        .exec();
 
       if (!refreshToken) {
-        throw new Error(`No valid refresh token found.`);
+        throw new Error('No valid refresh token found.');
       }
-
       return refreshToken;
     } catch (error) {
       console.log(error.message);
