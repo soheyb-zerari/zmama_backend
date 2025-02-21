@@ -5,16 +5,23 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product, ProductDocument } from 'src/schemas/product.schema';
 import { Model } from 'mongoose';
+import { AiRepository } from 'src/ai/ai.repository';
 
 @Injectable()
 export class ProductRepository {
   constructor(
     @InjectModel(Product.name)
     private readonly productModel: Model<ProductDocument>,
+    private readonly aiRepository: AiRepository,
   ) {}
 
   async create(createProductDto: CreateProductDto) {
-    const createdProduct = await new this.productModel(createProductDto);
+    const { name, price, description, category } = createProductDto;
+    const dataForEmbedding = `${name || ''} ${description || ''} ${category || ''} ${price || ''}`;
+    const productEmbedding =
+      await this.aiRepository.generateEmbedding(dataForEmbedding);
+    const productDb = { ...createProductDto, embedding: productEmbedding };
+    const createdProduct = await new this.productModel(productDb);
     return createdProduct.save();
   }
 

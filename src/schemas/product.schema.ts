@@ -17,6 +17,9 @@ export class Product {
 
   @Prop()
   category?: string;
+
+  @Prop({ required: true })
+  embedding: number[];
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

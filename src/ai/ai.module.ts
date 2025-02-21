@@ -7,5 +7,6 @@ import { AiRepository } from './ai.repository';
 @Module({
   controllers: [AiController],
   providers: [AiService, AiRepository],
+  exports: [AiRepository],
 })
 export class AiModule {}

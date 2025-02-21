@@ -6,11 +6,13 @@ import { DatabaseModule } from 'src/database/database.module';
 import { ProductRepository } from './product.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Product, ProductSchema } from 'src/schemas/product.schema';
+import { AiModule } from 'src/ai/ai.module';
 
 @Module({
   imports: [
     DatabaseModule,
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
+    AiModule,
   ],
   controllers: [ProductController],
   providers: [ProductService, ProductRepository],
