@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { ProductController } from './product.controller';
 import { DatabaseModule } from 'src/database/database.module';
@@ -12,9 +12,10 @@ import { AiModule } from 'src/ai/ai.module';
   imports: [
     DatabaseModule,
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
-    AiModule,
+    forwardRef(() => AiModule),
   ],
   controllers: [ProductController],
   providers: [ProductService, ProductRepository],
+  exports: [ProductService],
 })
 export class ProductModule {}

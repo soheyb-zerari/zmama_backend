@@ -13,6 +13,20 @@ export class ProductRepository {
     private readonly productModel: Model<ProductDocument>,
   ) {}
 
+  async getSimilarProduct(queryVector: number[]) {
+    return await this.productModel.aggregate([
+      {
+        $vectorSearch: {
+          index: 'vector_index',
+          path: 'embedding',
+          queryVector: queryVector,
+          numCandidates: 150,
+          limit: 7,
+        },
+      },
+    ]);
+  }
+
   async create(createProductDto: CreateProductDto, productEmbedding: number[]) {
     const productDb = { ...createProductDto, embedding: productEmbedding };
     const createdProduct = await new this.productModel(productDb);
