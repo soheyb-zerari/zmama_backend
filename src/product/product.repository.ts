@@ -50,4 +50,25 @@ export class ProductRepository {
   async remove(id: string) {
     return await this.productModel.findByIdAndDelete(id).exec();
   }
+
+  // async getUniqueCategories(products: any) {
+  //   try {
+  //     // Get all products with all fields
+  //     // const products = await this.findAll();
+  //     return products;
+  //     // console.log(products);
+  //     // // Process in memory to get unique categories
+  //     // const categories = [...new Set(
+  //     //   products
+  //     //     .map(product => product.category)
+  //     //     // .filter(category => category && category.trim() !== '')
+  //     // )];
+      
+  //     // return categories;
+  //   } catch (error) {
+  //     console.error('Error fetching unique categories:', error);
+  //     throw error;
+  //   }
+  // }
+
 }
