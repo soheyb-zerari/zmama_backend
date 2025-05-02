@@ -35,9 +35,6 @@ export class ProductService {
     const dataForEmbedding = `${name || ''} ${description || ''} ${category || ''} ${price || ''}`;
     const productEmbedding =
       await this.aiRepository.generateEmbedding(dataForEmbedding);
-    Logger.error(
-      'failed to generate embedding of this product: ' + dataForEmbedding,
-    );
     if (!productEmbedding) throw new Error('Internal Server Error');
     return this.productRepository.create(createProductDto, productEmbedding);
   }

@@ -1,14 +1,26 @@
 /* eslint-disable prettier/prettier */
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { GenerativeModel, GoogleGenerativeAI } from '@google/generative-ai';
-import OpenAI from 'openai';
+import { AzureOpenAI } from 'openai';
 import { ProductService } from 'src/product/product.service';
+import { DefaultAzureCredential, getBearerTokenProvider } from "@azure/identity";
+
 
 @Injectable()
 export class AiRepository {
   private readonly genAi: GoogleGenerativeAI;
   private readonly geminiModel: GenerativeModel;
-  private readonly openai: OpenAI;
+  private readonly openai: AzureOpenAI;
+  private readonly options: {
+    apiKey: string;
+    endpoint: string;
+    apiVersion: string;
+    deployment: string;
+   
+  };
+  private readonly credential = new DefaultAzureCredential();
+  private readonly scope = "https://cognitiveservices.azure.com/.default";
+  
 
   constructor(
     @Inject(forwardRef(() => ProductService))
@@ -18,24 +30,37 @@ export class AiRepository {
     this.geminiModel = this.genAi.getGenerativeModel({
       model: 'gemini-1.5-flash',
     });
-    this.openai = new OpenAI({
-      baseURL: 'https://models.inference.ai.azure.com',
+     
+    const apiVersion = "2024-04-01-preview";
+    const deployment = "text-embedding-3-small";
+    const azureADTokenProvider = getBearerTokenProvider(this.credential, this.scope);
+    this.options = {
       apiKey: process.env.GIHUB_API_KEY,
-    });
+      
+      endpoint: 'https://openaizmama.openai.azure.com/',
+      apiVersion,
+      deployment,
+    
+    };
+    this.openai = new AzureOpenAI(
+      this.options
+    );
   }
 
   async generateEmbedding(text: string): Promise<number[]> {
     if (!text) throw new Error('Text is required');
     try {
+      
+      
       const response = await this.openai.embeddings.create({
         model: 'text-embedding-3-small',
         input: text,
       });
-
+      
       return response.data[0].embedding;
     } catch (err) {
-      Logger.error(err);
-      return null;
+
+      return err;
     }
   }
 

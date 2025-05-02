@@ -18,6 +18,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
   async signup(signupDto: SignupDto) {
+    console.log(signupDto);
+    
     const emailInUse = await this.authRepository.findByEmail(signupDto.email);
     if (emailInUse) throw new BadRequestException('email already in use');
 
@@ -37,10 +39,11 @@ export class AuthService {
     );
     if (!passwordMatch) throw new UnauthorizedException('wrong credentials');
 
-    return this.generateUserTokens(user.id);
+    return this.generateUserTokens(user);
   }
 
-  async generateUserTokens(userId) {
+  async generateUserTokens(user) {
+    const userId = user._id;
     const accessToken = this.jwtService.sign({ userId }, { expiresIn: '1h' });
     const refreshToken = uuidv4();
     const expiresAt = new Date();
@@ -54,6 +57,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
+      user
     };
   }
 
