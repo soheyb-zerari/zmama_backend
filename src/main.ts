@@ -8,7 +8,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const corsOptions = {
-    origin: 'http://localhost:3000', // Specify the front-end URL
+    origin: '*', // Specify the front-end URL
     credentials: true, // Enable reading cookies from the request
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     maxAge: 24 * 60 * 60 * 5, // Set the maximum age of preflight requests to 5 days
