@@ -30,16 +30,27 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto) {
-    const user = await this.authRepository.findByEmail(loginDto.email);
-    if (!user) throw new UnauthorizedException('wrong credentials');
+    console.log("Login Data:", loginDto);
+    try {
+      const user = await this.authRepository.findByEmail(loginDto.email);
+      if (!user) throw new UnauthorizedException('wrong credentials');
+      const passwordMatch = await bcrypt.compare(
+        loginDto.password,
+        user.password,
+      );
+      if (!passwordMatch) throw new UnauthorizedException('wrong credentials');
+      return this.generateUserTokens(user);
+    } catch (error) {
+      console.error('Login Error:', error);
+      throw new UnauthorizedException('wrong credentials');
+      
+    }
+    
+    
 
-    const passwordMatch = await bcrypt.compare(
-      loginDto.password,
-      user.password,
-    );
-    if (!passwordMatch) throw new UnauthorizedException('wrong credentials');
+    
 
-    return this.generateUserTokens(user);
+    
   }
 
   async generateUserTokens(user) {
